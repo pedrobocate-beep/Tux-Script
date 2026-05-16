@@ -622,8 +622,8 @@ function updateNav(u) {
         const isA = ADMINS.includes(u.email);
         act.innerHTML = `<div class="ubadge"><div class="uav">${init}</div><span>${u.displayName||u.email.split('@')[0]}</span></div>
         <button class="btn btn-ol" onclick="doLogout()" style="border-color:var(--er);color:var(--er)">Sair</button>`;
-        if (isA) { anav.style.display='block'; fab.classList.add('on'); }
-        else { anav.style.display='none'; fab.classList.remove('on'); }
+        anav.style.display = isA ? 'block' : 'none';
+        fab.classList.add('on');
     } else {
         act.innerHTML = `<button class="btn btn-ol" onclick="openAuth('login')">Entrar</button><button class="btn btn-pr" onclick="openAuth('register')">Registrar</button>`;
         anav.style.display='none'; fab.classList.remove('on');
@@ -701,7 +701,6 @@ function scriptCard(s) {
 }
 
 window.postScript = async () => {
-    if (!chkAdmin()) return;
     const tit = document.getElementById('s-tit').value.trim();
     const cod = document.getElementById('s-cod').value.trim();
     if (!tit||!cod) { toast('Título e código obrigatórios!','er'); return; }
@@ -792,7 +791,6 @@ function ifaceCard(e) {
 }
 
 window.postInterface = async () => {
-    if (!chkAdmin()) return;
     const nam = document.getElementById('i-nam').value.trim();
     if (!nam) { toast('Nome obrigatório!','er'); return; }
     const platforms=[], ss=[];
@@ -866,7 +864,6 @@ function execCard(e) {
 }
 
 window.postExecutor = async () => {
-    if (!chkAdmin()) return;
     const nam = document.getElementById('e-nam').value.trim();
     if (!nam) { toast('Nome obrigatório!','er'); return; }
     const platforms=[];
@@ -1001,7 +998,6 @@ function switchA(tab){
 
 function openPost(type) {
     if (!window._user) { toast('Faça login!','er'); openAuth('login'); return; }
-    if (!(window._admins||[]).includes(window._user.email)) { toast('Apenas admins!','er'); return; }
     openM('mo-post');
     if(type) switchP(type);
 }
