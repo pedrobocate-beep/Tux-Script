@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tux-Script</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0a0a0f;
+            --bg2: #111118;
+            --bg3: #16161f;
+            --ac: #7c3aed;
+            --ac2: #a855f7;
+            --ac3: #06b6d4;
+            --tx: #ffffff;
+            --tx2: #a1a1aa;
+            --br: #2a2a3a;
+            --ok: #10b981;
+            --er: #ef4444;
+            --yw: #f59e0b;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--tx); min-height: 100vh; overflow-x: hidden; }
+
+        /* PARTICLES */
+        #particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+        .particle { position: absolute; width: 2px; height: 2px; background: var(--ac2); border-radius: 50%; animation: floatP linear infinite; opacity: 0; }
+        @keyframes floatP { 0%{transform:translateY(100vh);opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{transform:translateY(-100px) translateX(60px);opacity:0} }
+
+        /* NAV */
+        nav { position: fixed; top:0; left:0; right:0; z-index:1000; background:rgba(10,10,15,0.92); backdrop-filter:blur(20px); border-bottom:1px solid var(--br); height:65px; display:flex; align-items:center; justify-content:space-between; padding:0 2rem; }
+        .logo { display:flex; align-items:center; gap:10px; font-size:1.5rem; font-weight:900; background:linear-gradient(135deg,var(--ac2),var(--ac3)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .logo-icon { width:40px; height:40px; background:linear-gradient(135deg,var(--ac),var(--ac3)); border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; }
+        .nav-links { display:flex; gap:4px; list-style:none; }
+        .nav-links a { color:var(--tx2); text-decoration:none; padding:8px 14px; border-radius:8px; transition:all .3s; font-size:0.88rem; cursor:pointer; display:flex; align-items:center; gap:5px; white-space:nowrap; }
+        .nav-links a:hover, .nav-links a.active { color:var(--tx); background:rgba(124,58,237,0.2); }
+        .nav-act { display:flex; gap:8px; align-items:center; }
+
+        .btn { padding:8px 18px; border-radius:8px; border:none; cursor:pointer; font-size:0.88rem; font-weight:600; transition:all .3s; }
+        .btn-ol { background:transparent; color:var(--tx); border:1px solid var(--br); }
+        .btn-ol:hover { border-color:var(--ac); color:var(--ac2); }
+        .btn-pr { background:linear-gradient(135deg,var(--ac),var(--ac2)); color:#fff; }
+        .btn-pr:hover { opacity:.85; transform:translateY(-1px); }
+        .btn-sm { padding:6px 13px; font-size:0.8rem; }
+        .btn-lg { padding:13px 30px; font-size:1rem; }
+
+        .ubadge { display:flex; align-items:center; gap:8px; padding:6px 13px; background:rgba(124,58,237,0.15); border:1px solid rgba(124,58,237,0.3); border-radius:8px; font-size:0.83rem; }
+        .uav { width:26px; height:26px; border-radius:50%; background:linear-gradient(135deg,var(--ac),var(--ac3)); display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:700; }
+
+        /* PAGES */
+        .page { display:none; padding-top:65px; min-height:100vh; position:relative; z-index:1; }
+        .page.active { display:block; }
+
+        /* HERO */
+        .hero { min-height:calc(100vh - 65px); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem; position:relative; }
+        .hero-glow { position:absolute; width:700px; height:700px; border-radius:50%; background:radial-gradient(circle,rgba(124,58,237,0.13),transparent 70%); top:50%; left:50%; transform:translate(-50%,-50%); pointer-events:none; }
+        .hero-badge { display:inline-flex; align-items:center; gap:6px; padding:6px 16px; background:rgba(124,58,237,0.1); border:1px solid rgba(124,58,237,0.3); border-radius:50px; font-size:0.8rem; color:var(--ac2); margin-bottom:1.5rem; animation:pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(124,58,237,0.4)} 50%{box-shadow:0 0 0 10px rgba(124,58,237,0)} }
+        .hero h1 { font-size:clamp(2.5rem,8vw,5rem); font-weight:900; line-height:1.1; margin-bottom:1rem; }
+        .gt { background:linear-gradient(135deg,var(--ac2),var(--ac3)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .hero p { font-size:1.05rem; color:var(--tx2); max-width:560px; line-height:1.7; margin-bottom:2.5rem; }
+        .hero-btns { display:flex; gap:1rem; flex-wrap:wrap; justify-content:center; }
+        .hero-stats { display:flex; gap:2.5rem; margin-top:4rem; flex-wrap:wrap; justify-content:center; }
+        .stat { text-align:center; }
+        .stat-n { font-size:2rem; font-weight:800; background:linear-gradient(135deg,var(--ac2),var(--ac3)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .stat-l { color:var(--tx2); font-size:0.82rem; margin-top:2px; }
+
+        /* SECTION */
+        .sec { padding:4rem 2rem; max-width:1300px; margin:0 auto; }
+        .sec-hd { text-align:center; margin-bottom:3rem; }
+        .sec-hd h2 { font-size:2.2rem; font-weight:800; margin-bottom:.5rem; }
+        .sec-hd p { color:var(--tx2); }
+        .sec-tag { display:inline-block; padding:4px 12px; background:rgba(124,58,237,0.1); border:1px solid rgba(124,58,237,0.3); border-radius:50px; font-size:0.75rem; color:var(--ac2); margin-bottom:.8rem; }
+
+        /* GRIDS */
+        .g3 { display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:1.5rem; }
+        .g2 { display:grid; grid-template-columns:repeat(auto-fill,minmax(420px,1fr)); gap:2rem; }
+        .g4 { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1.5rem; }
+
+        /* CARD BASE */
+        .card { background:var(--bg3); border:1px solid var(--br); border-radius:16px; overflow:hidden; transition:all .3s; }
+        .card:hover { border-color:var(--ac); transform:translateY(-4px); box-shadow:0 20px 40px rgba(124,58,237,0.15); }
+
+        /* SCRIPT CARD */
+        .cimg { width:100%; height:175px; background:linear-gradient(135deg,#1a1a2e,#16213e); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+        .cimg img { width:100%; height:100%; object-fit:cover; }
+        .cimg-ph { display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--tx2); }
+        .cimg-ph .bi { font-size:2.5rem; opacity:.2; }
+        .cimg-ph span { font-size:.75rem; opacity:.4; }
+        .cbadge { position:absolute; top:10px; right:10px; padding:3px 10px; border-radius:50px; font-size:.7rem; font-weight:700; color:#fff; }
+        .cbadge.free { background:rgba(16,185,129,0.9); }
+        .cbadge.paid { background:rgba(239,68,68,0.9); }
+        .cbody { padding:1.2rem; }
+        .ctitle { font-size:.98rem; font-weight:700; margin-bottom:.35rem; }
+        .cdesc { font-size:.8rem; color:var(--tx2); line-height:1.5; margin-bottom:.9rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+        .cmeta { display:flex; align-items:center; justify-content:space-between; margin-bottom:.8rem; font-size:.76rem; color:var(--tx2); }
+        .cfoot { display:flex; gap:8px; }
+
+        /* CODE VIEWER */
+        .cv { background:#0d0d14; border:1px solid var(--br); border-radius:10px; overflow:hidden; margin-top:.8rem; display:none; }
+        .cv.open { display:block; }
+        .cv-hd { display:flex; align-items:center; justify-content:space-between; padding:7px 13px; background:#111118; border-bottom:1px solid var(--br); }
+        .dots { display:flex; gap:5px; }
+        .dot { width:10px; height:10px; border-radius:50%; }
+        .dot.r{background:#ef4444} .dot.y{background:#f59e0b} .dot.g{background:#10b981}
+        .cv-lang { font-size:.72rem; color:var(--tx2); }
+        .cv-body { padding:.9rem; font-family:'Courier New',monospace; font-size:.78rem; color:#e2e8f0; white-space:pre-wrap; word-break:break-all; max-height:200px; overflow-y:auto; line-height:1.6; }
+        .cv-body::-webkit-scrollbar{width:3px} .cv-body::-webkit-scrollbar-thumb{background:var(--ac);border-radius:2px}
+
+        /* ===== INTERFACE CARD (grande com screenshots) ===== */
+        .icard { background:var(--bg3); border:1px solid var(--br); border-radius:20px; overflow:hidden; transition:all .3s; }
+        .icard:hover { border-color:var(--ac); transform:translateY(-5px); box-shadow:0 25px 50px rgba(124,58,237,0.2); }
+
+        .icard-main-ss { width:100%; height:310px; position:relative; overflow:hidden; background:#0a0a0f; cursor:pointer; }
+        .icard-main-ss img { width:100%; height:100%; object-fit:cover; transition:transform .4s; display:block; }
+        .icard:hover .icard-main-ss img { transform:scale(1.03); }
+        .icard-ss-ph { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; background:linear-gradient(135deg,#0d0d14,#1a1a2e); color:var(--tx2); }
+        .icard-ss-ph .bi { font-size:5rem; opacity:.1; }
+        .icard-ss-ph span { font-size:.85rem; opacity:.35; }
+
+        .icard-expand { position:absolute; inset:0; background:rgba(0,0,0,0); display:flex; align-items:center; justify-content:center; transition:all .3s; }
+        .icard:hover .icard-expand { background:rgba(0,0,0,0.35); }
+        .icard-expand-btn { background:rgba(124,58,237,0.9); border:none; color:#fff; padding:10px 22px; border-radius:8px; font-size:.85rem; font-weight:700; cursor:pointer; opacity:0; transform:translateY(10px); transition:all .3s; }
+        .icard:hover .icard-expand-btn { opacity:1; transform:translateY(0); }
+
+        /* Thumb strip */
+        .thumb-strip { display:flex; gap:6px; padding:8px 14px; background:#0d0d14; overflow-x:auto; border-bottom:1px solid var(--br); }
+        .thumb-strip::-webkit-scrollbar{height:3px} .thumb-strip::-webkit-scrollbar-thumb{background:var(--ac)}
+        .thumb { width:68px; height:44px; border-radius:5px; overflow:hidden; flex-shrink:0; border:2px solid transparent; cursor:pointer; transition:all .2s; }
+        .thumb.on { border-color:var(--ac2); }
+        .thumb img { width:100%; height:100%; object-fit:cover; }
+        .thumb-ph { width:100%; height:100%; background:#1a1a2e; display:flex; align-items:center; justify-content:center; font-size:.9rem; opacity:.4; }
+
+        /* Interface info */
+        .icard-info { padding:1.4rem; }
+        .icard-hd { display:flex; align-items:center; gap:12px; margin-bottom:1rem; }
+        .icard-logo { width:50px; height:50px; border-radius:12px; overflow:hidden; background:linear-gradient(135deg,var(--ac),var(--ac3)); display:flex; align-items:center; justify-content:center; font-size:1.4rem; flex-shrink:0; border:2px solid var(--br); }
+        .icard-logo img { width:100%; height:100%; object-fit:cover; }
+        .icard-nw { flex:1; }
+        .icard-name { font-size:1.15rem; font-weight:800; }
+        .icard-sub { font-size:.76rem; color:var(--tx2); margin-top:2px; }
+        .ibadge { padding:4px 11px; border-radius:50px; font-size:.7rem; font-weight:700; }
+        .ibadge.free { background:rgba(16,185,129,0.12); color:var(--ok); border:1px solid rgba(16,185,129,0.3); }
+        .ibadge.paid { background:rgba(239,68,68,0.12); color:var(--er); border:1px solid rgba(239,68,68,0.3); }
+        .ibadge.freemium { background:rgba(245,158,11,0.12); color:var(--yw); border:1px solid rgba(245,158,11,0.3); }
+
+        .icard-desc { font-size:.83rem; color:var(--tx2); line-height:1.6; margin-bottom:1rem; }
+
+        .feat-tags { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:1rem; }
+        .feat-tag { padding:3px 9px; background:rgba(124,58,237,0.1); border:1px solid rgba(124,58,237,0.25); border-radius:50px; font-size:.7rem; color:var(--ac2); }
+
+        .icard-stats { display:flex; gap:.8rem; padding:.9rem 0; border-top:1px solid var(--br); border-bottom:1px solid var(--br); margin-bottom:1rem; }
+        .ist { text-align:center; flex:1; }
+        .ist-v { font-size:1rem; font-weight:800; background:linear-gradient(135deg,var(--ac2),var(--ac3)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .ist-l { font-size:.68rem; color:var(--tx2); }
+
+        .plats { display:flex; gap:5px; flex-wrap:wrap; margin-bottom:1rem; }
+        .ptag { padding:3px 9px; background:rgba(6,182,212,0.08); border:1px solid rgba(6,182,212,0.25); border-radius:6px; font-size:.72rem; color:var(--ac3); }
+
+        .stars { color:var(--yw); font-size:.9rem; letter-spacing:2px; }
+        .icard-act { display:flex; gap:8px; }
+
+        /* ===== EXECUTOR CARD (simples, só o executor) ===== */
+        .ecard { background:var(--bg3); border:1px solid var(--br); border-radius:16px; overflow:hidden; transition:all .3s; }
+        .ecard:hover { border-color:var(--ac3); transform:translateY(-4px); box-shadow:0 20px 40px rgba(6,182,212,0.12); }
+
+        .ecard-logo-wrap { width:100%; height:160px; background:linear-gradient(135deg,#0d0d14,#1a1a2e); display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+        .ecard-logo-wrap img { width:100%; height:100%; object-fit:cover; }
+        .ecard-logo-ph { display:flex; flex-direction:column; align-items:center; gap:10px; color:var(--tx2); }
+        .ecard-logo-ph .bi { font-size:4rem; opacity:.15; }
+        .ecard-logo-ph span { font-size:.78rem; opacity:.4; }
+        .ecard-ver { position:absolute; top:10px; right:10px; padding:3px 10px; border-radius:50px; background:rgba(6,182,212,0.85); color:#fff; font-size:.68rem; font-weight:700; }
+
+        .ecard-body { padding:1.2rem; }
+        .ecard-title { font-size:1.05rem; font-weight:800; margin-bottom:.3rem; display:flex; align-items:center; gap:8px; }
+        .ecard-desc { font-size:.8rem; color:var(--tx2); line-height:1.5; margin-bottom:.9rem; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+        .ecard-plats { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:.8rem; }
+        .ecard-stars { color:var(--yw); font-size:.85rem; margin-bottom:.8rem; }
+        .ecard-foot { display:flex; gap:8px; }
+        .ecard-status { padding:3px 8px; border-radius:50px; font-size:.68rem; font-weight:700; }
+        .st-active { background:rgba(16,185,129,0.15); color:var(--ok); border:1px solid rgba(16,185,129,0.3); }
+        .st-detected { background:rgba(239,68,68,0.15); color:var(--er); border:1px solid rgba(239,68,68,0.3); }
+
+        /* LIGHTBOX */
+        .lb { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.93); z-index:99999; align-items:center; justify-content:center; padding:1rem; }
+        .lb.open { display:flex; }
+        .lb-c { position:relative; max-width:1100px; width:100%; }
+        .lb-c img { width:100%; max-height:88vh; object-fit:contain; border-radius:12px; border:1px solid var(--br); }
+        .lb-x { position:absolute; top:-42px; right:0; background:none; border:none; color:#fff; font-size:1.4rem; cursor:pointer; padding:5px 10px; border-radius:8px; }
+        .lb-x:hover { background:rgba(255,255,255,0.1); }
+        .lb-cap { text-align:center; margin-top:10px; color:var(--tx2); font-size:.83rem; }
+
+        /* EMPTY */
+        .empty { text-align:center; padding:4rem 2rem; color:var(--tx2); grid-column:1/-1; }
+        .empty .bi { font-size:4.5rem; opacity:.1; display:block; margin-bottom:1rem; }
+        .empty h3 { font-size:1.2rem; font-weight:700; opacity:.35; margin-bottom:.4rem; }
+        .empty p { font-size:.85rem; opacity:.35; }
+
+        /* SEARCH */
+        .sbar { display:flex; gap:1rem; margin-bottom:2rem; flex-wrap:wrap; }
+        .sinp-w { flex:1; min-width:200px; position:relative; }
+        .sinp-w .si { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--tx2); }
+        .sinp { width:100%; padding:10px 14px 10px 36px; }
+        .fsel { padding:10px 14px; background:var(--bg2); border:1px solid var(--br); border-radius:8px; color:var(--tx); font-size:.88rem; outline:none; cursor:pointer; }
+
+        /* MODAL */
+        .mo { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.82); backdrop-filter:blur(8px); z-index:9999; align-items:center; justify-content:center; padding:1rem; }
+        .mo.open { display:flex; }
+        .modal { background:var(--bg3); border:1px solid var(--br); border-radius:20px; width:100%; max-width:500px; overflow:hidden; animation:su .3s ease; max-height:92vh; overflow-y:auto; }
+        .modal-lg { max-width:700px; }
+        @keyframes su { from{transform:translateY(30px);opacity:0} to{transform:translateY(0);opacity:1} }
+        .mhd { padding:1.4rem 1.4rem 1rem; border-bottom:1px solid var(--br); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:var(--bg3); z-index:10; }
+        .mtitle { font-size:1.15rem; font-weight:700; }
+        .mclose { background:none; border:none; color:var(--tx2); font-size:1.2rem; cursor:pointer; width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+        .mclose:hover { background:rgba(255,255,255,0.1); color:#fff; }
+        .mbody { padding:1.4rem; }
+
+        /* AUTH */
+        .atabs { display:flex; border-bottom:1px solid var(--br); margin-bottom:1.5rem; }
+        .atab { flex:1; padding:10px; text-align:center; cursor:pointer; font-size:.88rem; color:var(--tx2); border-bottom:2px solid transparent; transition:all .3s; }
+        .atab.on { color:var(--ac2); border-bottom-color:var(--ac2); }
+        .aform { display:none; }
+        .aform.on { display:block; }
+
+        /* FORM */
+        .fg { margin-bottom:1.1rem; }
+        .fl { display:block; font-size:.82rem; font-weight:600; margin-bottom:.45rem; color:var(--tx2); }
+        .fc { width:100%; padding:10px 13px; background:var(--bg2); border:1px solid var(--br); border-radius:8px; color:var(--tx); font-size:.88rem; transition:all .3s; outline:none; }
+        .fc:focus { border-color:var(--ac); box-shadow:0 0 0 3px rgba(124,58,237,0.15); }
+        .fc::placeholder { color:var(--tx2); opacity:.45; }
+        textarea.fc { resize:vertical; min-height:85px; }
+        .fr { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+
+        /* POST TABS */
+        .ptabs { display:flex; gap:6px; margin-bottom:1.4rem; }
+        .ptab { flex:1; padding:9px; border-radius:8px; border:1px solid var(--br); background:transparent; color:var(--tx2); cursor:pointer; font-size:.82rem; font-weight:600; transition:all .3s; }
+        .ptab.on { background:rgba(124,58,237,0.2); border-color:var(--ac); color:var(--ac2); }
+
+        /* SCREENSHOTS MANAGER */
+        .ssl { display:flex; flex-direction:column; gap:7px; }
+        .ssi { display:flex; gap:7px; align-items:center; }
+        .ssi .fc { flex:1; }
+        .rmss { width:30px; height:30px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:var(--er); border-radius:7px; cursor:pointer; font-size:.8rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .2s; }
+        .rmss:hover { background:rgba(239,68,68,0.2); }
+        .addss { width:100%; padding:8px; background:rgba(124,58,237,0.07); border:1px dashed var(--ac); color:var(--ac2); border-radius:8px; cursor:pointer; font-size:.8rem; font-weight:600; transition:all .2s; margin-top:7px; }
+        .addss:hover { background:rgba(124,58,237,0.14); }
+
+        /* IMG PREVIEW */
+        .ipw { width:100%; height:110px; border:2px dashed var(--br); border-radius:9px; overflow:hidden; margin-top:7px; }
+        .ipw img { width:100%; height:100%; object-fit:cover; }
+        .ipph { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; color:var(--tx2); }
+        .ipph .bi { font-size:1.6rem; opacity:.25; }
+        .ipph span { font-size:.72rem; opacity:.4; }
+
+        /* PLATFORM CHECKS */
+        .pchks { display:flex; gap:12px; flex-wrap:wrap; margin-top:5px; }
+        .pchks label { display:flex; align-items:center; gap:4px; cursor:pointer; font-size:.83rem; }
+
+        /* ADMIN */
+        .ag { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:1rem; margin-bottom:2rem; }
+        .asc { background:var(--bg3); border:1px solid var(--br); border-radius:12px; padding:1.1rem; }
+        .asc .n { font-size:1.8rem; font-weight:800; background:linear-gradient(135deg,var(--ac2),var(--ac3)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .asc .l { font-size:.78rem; color:var(--tx2); }
+        .delbtn { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:var(--er); padding:5px 9px; border-radius:6px; cursor:pointer; font-size:.73rem; transition:all .2s; }
+        .delbtn:hover { background:rgba(239,68,68,0.2); }
+
+        /* FAB */
+        .fab { position:fixed; bottom:2rem; left:2rem; width:54px; height:54px; border-radius:50%; background:linear-gradient(135deg,var(--ac),var(--ac2)); border:none; color:#fff; font-size:1.5rem; cursor:pointer; box-shadow:0 10px 30px rgba(124,58,237,0.4); transition:all .3s; display:none; align-items:center; justify-content:center; z-index:500; }
+        .fab:hover { transform:scale(1.1) rotate(45deg); }
+        .fab.on { display:flex; }
+
+        /* TOAST */
+        .tcon { position:fixed; bottom:2rem; right:2rem; z-index:99999; display:flex; flex-direction:column; gap:9px; }
+        .toast { padding:11px 18px; background:var(--bg3); border:1px solid var(--br); border-radius:10px; font-size:.83rem; display:flex; align-items:center; gap:9px; animation:sir .3s ease; min-width:250px; box-shadow:0 10px 30px rgba(0,0,0,0.4); }
+        @keyframes sir { from{transform:translateX(100px);opacity:0} to{transform:translateX(0);opacity:1} }
+        .toast.ok { border-color:var(--ok); }
+        .toast.er { border-color:var(--er); }
+        .toast.inf { border-color:var(--ac); }
+
+        /* LOADING */
+        .spin { width:38px; height:38px; border:3px solid var(--br); border-top-color:var(--ac); border-radius:50%; animation:spin .8s linear infinite; margin:3rem auto; grid-column:1/-1; }
+        @keyframes spin { to{transform:rotate(360deg)} }
+
+        /* FOOTER */
+        footer { background:var(--bg2); border-top:1px solid var(--br); padding:2rem; text-align:center; color:var(--tx2); font-size:.83rem; }
+        .flogo { font-size:1.3rem; font-weight:900; background:linear-gradient(135deg,var(--ac2),var(--ac3)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:.4rem; }
+
+        @media(max-width:768px) {
+            .nav-links{display:none}
+            .fr{grid-template-columns:1fr}
+            .g2{grid-template-columns:1fr}
+            nav{padding:0 1rem}
+            .icard-main-ss{height:220px}
+        }
+    </style>
+</head>
+<body>
+
+<div id="particles"></div>
+
+<!-- NAV -->
+<nav>
+    <div class="logo">
+        <div class="logo-icon">🐧</div>
+        Tux-Script
+    </div>
+    <ul class="nav-links">
+        <li><a onclick="showPage('home')" id="nav-home" class="active">🏠 Home</a></li>
+        <li><a onclick="showPage('scripts')" id="nav-scripts">📜 Scripts</a></li>
+        <li><a onclick="showPage('interfaces')" id="nav-interfaces">🖥️ Interfaces</a></li>
+        <li><a onclick="showPage('executors')" id="nav-executors">⚡ Executores</a></li>
+        <li><a onclick="showPage('admin')" id="nav-admin" style="display:none">🛡️ Admin</a></li>
+    </ul>
+    <div class="nav-act" id="nav-act">
+        <button class="btn btn-ol" onclick="openAuth('login')">Entrar</button>
+        <button class="btn btn-pr" onclick="openAuth('register')">Registrar</button>
+    </div>
+</nav>
+
+<button class="fab" id="fab" onclick="openPost()" title="Novo Post">+</button>
+
+<!-- ===== HOME ===== -->
+<div class="page active" id="page-home">
+    <div class="hero">
+        <div class="hero-glow"></div>
+        <div class="hero-badge">🐧 A melhor plataforma de scripts Roblox</div>
+        <h1>Bem-vindo ao<br><span class="gt">Tux-Script</span></h1>
+        <p>Scripts, interfaces e executores para Roblox. Tudo gratuito para a comunidade brasileira.</p>
+        <div class="hero-btns">
+            <button class="btn btn-pr btn-lg" onclick="showPage('scripts')">📜 Scripts</button>
+            <button class="btn btn-ol btn-lg" onclick="showPage('interfaces')">🖥️ Interfaces</button>
+            <button class="btn btn-ol btn-lg" onclick="showPage('executors')">⚡ Executores</button>
+        </div>
+        <div class="hero-stats">
+            <div class="stat"><div class="stat-n" id="hs-scripts">0</div><div class="stat-l">Scripts</div></div>
+            <div class="stat"><div class="stat-n" id="hs-ifaces">0</div><div class="stat-l">Interfaces</div></div>
+            <div class="stat"><div class="stat-n" id="hs-execs">0</div><div class="stat-l">Executores</div></div>
+        </div>
+    </div>
+
+    <div class="sec">
+        <div class="sec-hd"><div class="sec-tag">📜 Recentes</div><h2>Scripts em Destaque</h2><p>Os mais recentes da comunidade</p></div>
+        <div class="g3" id="h-scripts"><div class="empty"><span class="bi">📜</span><h3>Nenhum script ainda</h3><p>Seja o primeiro!</p></div></div>
+    </div>
+
+    <div class="sec" style="padding-top:0">
+        <div class="sec-hd"><div class="sec-tag">🖥️ Interfaces</div><h2>Interfaces em Destaque</h2><p>Veja como os executores se parecem por dentro</p></div>
+        <div class="g2" id="h-ifaces"><div class="empty"><span class="bi">🖥️</span><h3>Nenhuma interface ainda</h3><p>Em breve!</p></div></div>
+    </div>
+
+    <div class="sec" style="padding-top:0">
+        <div class="sec-hd"><div class="sec-tag">⚡ Executores</div><h2>Executores em Destaque</h2><p>Os melhores executores para Roblox</p></div>
+        <div class="g4" id="h-execs"><div class="empty"><span class="bi">⚡</span><h3>Nenhum executor ainda</h3><p>Em breve!</p></div></div>
+    </div>
+
+    <footer>
+        <div class="flogo">🐧 Tux-Script</div>
+        <p>© 2024 Tux-Script · Scripts para Roblox · Comunidade BR</p>
+    </footer>
+</div>
+
+<!-- ===== SCRIPTS ===== -->
+<div class="page" id="page-scripts">
+    <div class="sec">
+        <div class="sec-hd"><div class="sec-tag">📜 Scripts</div><h2>Scripts Roblox</h2><p>Encontre scripts para os seus jogos favoritos</p></div>
+        <div class="sbar">
+            <div class="sinp-w"><span class="si">🔍</span><input type="text" class="fc sinp" id="ss-q" placeholder="Buscar scripts..." oninput="filterS()"></div>
+            <select class="fsel" id="ss-f" onchange="filterS()">
+                <option value="all">Todos</option>
+                <option value="free">Gratuito</option>
+                <option value="paid">Pago</option>
+            </select>
+        </div>
+        <div class="g3" id="sg"><div class="spin"></div></div>
+    </div>
+</div>
+
+<!-- ===== INTERFACES ===== -->
+<div class="page" id="page-interfaces">
+    <div class="sec">
+        <div class="sec-hd"><div class="sec-tag">🖥️ Interfaces</div><h2>Interfaces dos Executores</h2><p>Veja as UIs, screenshots e layouts dos executores Roblox</p></div>
+        <div class="sbar">
+            <div class="sinp-w"><span class="si">🔍</span><input type="text" class="fc sinp" id="is-q" placeholder="Buscar interfaces..." oninput="filterI()"></div>
+            <select class="fsel" id="is-f" onchange="filterI()">
+                <option value="all">Todas Plataformas</option>
+                <option value="windows">Windows</option>
+                <option value="android">Android</option>
+                <option value="ios">iOS</option>
+                <option value="mac">Mac</option>
+            </select>
+        </div>
+        <div class="g2" id="ig"><div class="spin"></div></div>
+    </div>
+</div>
+
+<!-- ===== EXECUTORES ===== -->
+<div class="page" id="page-executors">
+    <div class="sec">
+        <div class="sec-hd"><div class="sec-tag">⚡ Executores</div><h2>Executores Roblox</h2><p>Os melhores executores com avaliações e informações</p></div>
+        <div class="sbar">
+            <div class="sinp-w"><span class="si">🔍</span><input type="text" class="fc sinp" id="es-q" placeholder="Buscar executores..." oninput="filterE()"></div>
+            <select class="fsel" id="es-f" onchange="filterE()">
+                <option value="all">Todas Plataformas</option>
+                <option value="windows">Windows</option>
+                <option value="android">Android</option>
+                <option value="ios">iOS</option>
+                <option value="mac">Mac</option>
+            </select>
+        </div>
+        <div class="g4" id="eg"><div class="spin"></div></div>
+    </div>
+</div>
+
+<!-- ===== ADMIN ===== -->
+<div class="page" id="page-admin">
+    <div class="sec">
+        <div class="sec-hd"><div class="sec-tag">🛡️ Admin</div><h2>Painel de Administração</h2></div>
+        <div class="ag">
+            <div class="asc"><div class="n" id="as-s">0</div><div class="l">📜 Scripts</div></div>
+            <div class="asc"><div class="n" id="as-i">0</div><div class="l">🖥️ Interfaces</div></div>
+            <div class="asc"><div class="n" id="as-e">0</div><div class="l">⚡ Executores</div></div>
+        </div>
+        <div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-bottom:2rem;">
+            <button class="btn btn-pr" onclick="openPost('script')">+ Script</button>
+            <button class="btn btn-ol" onclick="openPost('interface')">+ Interface</button>
+            <button class="btn btn-ol" onclick="openPost('executor')">+ Executor</button>
+        </div>
+        <h3 style="margin-bottom:1rem;font-size:1rem;">📜 Scripts</h3>
+        <div class="g3" id="adm-s" style="margin-bottom:2rem;"></div>
+        <h3 style="margin-bottom:1rem;font-size:1rem;">🖥️ Interfaces</h3>
+        <div class="g3" id="adm-i" style="margin-bottom:2rem;"></div>
+        <h3 style="margin-bottom:1rem;font-size:1rem;">⚡ Executores</h3>
+        <div class="g3" id="adm-e"></div>
+    </div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="mo" id="mo-auth">
+    <div class="modal">
+        <div class="mhd"><span class="mtitle">🐧 Tux-Script</span><button class="mclose" onclick="closeM('mo-auth')">✕</button></div>
+        <div class="mbody">
+            <div class="atabs">
+                <div class="atab on" onclick="switchA('login')" id="at-login">Entrar</div>
+                <div class="atab" onclick="switchA('register')" id="at-register">Registrar</div>
+            </div>
+            <div class="aform on" id="af-login">
+                <div class="fg"><label class="fl">📧 E-mail</label><input type="email" class="fc" id="l-email" placeholder="seu@email.com"></div>
+                <div class="fg"><label class="fl">🔒 Senha</label><input type="password" class="fc" id="l-pass" placeholder="••••••••"></div>
+                <button class="btn btn-pr" style="width:100%;padding:12px" onclick="doLogin()">Entrar</button>
+            </div>
+            <div class="aform" id="af-register">
+                <div class="fg"><label class="fl">👤 Usuário</label><input type="text" class="fc" id="r-name" placeholder="SeuNick"></div>
+                <div class="fg"><label class="fl">📧 E-mail</label><input type="email" class="fc" id="r-email" placeholder="seu@email.com"></div>
+                <div class="fg"><label class="fl">🔒 Senha</label><input type="password" class="fc" id="r-pass" placeholder="Mínimo 6 caracteres"></div>
+                <button class="btn btn-pr" style="width:100%;padding:12px" onclick="doRegister()">Criar Conta</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- POST MODAL -->
+<div class="mo" id="mo-post">
+    <div class="modal modal-lg">
+        <div class="mhd"><span class="mtitle" id="post-title">+ Novo Post</span><button class="mclose" onclick="closeM('mo-post')">✕</button></div>
+        <div class="mbody">
+            <div class="ptabs">
+                <button class="ptab on" onclick="switchP('script')" id="pt-script">📜 Script</button>
+                <button class="ptab" onclick="switchP('interface')" id="pt-interface">🖥️ Interface</button>
+                <button class="ptab" onclick="switchP('executor')" id="pt-executor">⚡ Executor</button>
+            </div>
+
+            <!-- SCRIPT FORM -->
+            <div id="pf-script">
+                <div class="fg"><label class="fl">📝 Título</label><input type="text" class="fc" id="s-tit" placeholder="Ex: Blox Fruits Auto Farm..."></div>
+                <div class="fg"><label class="fl">📋 Descrição</label><textarea class="fc" id="s-dsc" placeholder="Descreva o script..."></textarea></div>
+                <div class="fg"><label class="fl">💻 Código Lua</label><textarea class="fc" id="s-cod" style="min-height:110px;font-family:monospace;font-size:.8rem;" placeholder="loadstring(game:HttpGet('...'))()"></textarea></div>
+                <div class="fr">
+                    <div class="fg"><label class="fl">🎮 Jogo</label><input type="text" class="fc" id="s-gam" placeholder="Blox Fruits..."></div>
+                    <div class="fg"><label class="fl">💰 Tipo</label><select class="fc" id="s-typ"><option value="free">Gratuito</option><option value="paid">Pago</option></select></div>
+                </div>
+                <div class="fg">
+                    <label class="fl">🖼️ Screenshot (URL)</label>
+                    <input type="url" class="fc" id="s-img" placeholder="https://i.imgur.com/..." oninput="prevImg('s-img','s-iprev')">
+                    <div class="ipw"><div id="s-iprev" class="ipph"><span class="bi">🖼️</span><span>Preview</span></div></div>
+                </div>
+                <button class="btn btn-pr" style="width:100%;padding:12px;margin-top:.5rem" onclick="postScript()">📜 Publicar Script</button>
+            </div>
+
+            <!-- INTERFACE FORM -->
+            <div id="pf-interface" style="display:none">
+                <div class="fg"><label class="fl">⚡ Nome do Executor</label><input type="text" class="fc" id="i-nam" placeholder="Ex: Synapse X, Fluxus, Delta..."></div>
+                <div class="fg"><label class="fl">📋 Descrição da Interface</label><textarea class="fc" id="i-dsc" placeholder="Descreva a UI, layout, usabilidade..."></textarea></div>
+                <div class="fg">
+                    <label class="fl">🏷️ Logo do Executor (URL)</label>
+                    <input type="url" class="fc" id="i-logo" placeholder="https://i.imgur.com/logo..." oninput="prevImg('i-logo','i-lprev')">
+                    <div class="ipw" style="height:80px;"><div id="i-lprev" class="ipph"><span class="bi">🏷️</span><span>Logo preview</span></div></div>
+                </div>
+                <div class="fg">
+                    <label class="fl">🖥️ Screenshot Principal da Interface (URL)</label>
+                    <input type="url" class="fc" id="i-main" placeholder="https://i.imgur.com/ui_main..." oninput="prevImg('i-main','i-mprev')">
+                    <div class="ipw"><div id="i-mprev" class="ipph"><span class="bi">🖥️</span><span>Interface preview</span></div></div>
+                </div>
+                <div class="fg">
+                    <label class="fl">📸 Screenshots Extras da Interface</label>
+                    <div class="ssl" id="i-ssl">
+                        <div class="ssi"><input type="url" class="fc" placeholder="URL screenshot 1"><button class="rmss" onclick="rmSS(this)">✕</button></div>
+                    </div>
+                    <button class="addss" onclick="addSS('i-ssl')">+ Adicionar Screenshot</button>
+                </div>
+                <div class="fr">
+                    <div class="fg"><label class="fl">🏷️ Versão</label><input type="text" class="fc" id="i-ver" placeholder="v2.1.0"></div>
+                    <div class="fg"><label class="fl">⭐ Avaliação (1-5)</label><input type="number" class="fc" id="i-rat" min="1" max="5" value="5"></div>
+                </div>
+                <div class="fg">
+                    <label class="fl">💻 Plataformas</label>
+                    <div class="pchks">
+                        <label><input type="checkbox" id="i-win"> 🖥️ Windows</label>
+                        <label><input type="checkbox" id="i-and"> 📱 Android</label>
+                        <label><input type="checkbox" id="i-ios"> 🍎 iOS</label>
+                        <label><input type="checkbox" id="i-mac"> 💻 Mac</label>
+                    </div>
+                </div>
+                <div class="fg"><label class="fl">✨ Features (separadas por vírgula)</label><input type="text" class="fc" id="i-fea" placeholder="Script Hub, Auto Execute, Anti-Detect..."></div>
+                <div class="fg"><label class="fl">💰 Preço</label><select class="fc" id="i-pri"><option value="free">Gratuito</option><option value="paid">Pago</option><option value="freemium">Freemium</option></select></div>
+                <div class="fg"><label class="fl">🔗 Link Download / Site</label><input type="url" class="fc" id="i-lnk" placeholder="https://..."></div>
+                <button class="btn btn-pr" style="width:100%;padding:12px;margin-top:.5rem" onclick="postInterface()">🖥️ Publicar Interface</button>
+            </div>
+
+            <!-- EXECUTOR FORM -->
+            <div id="pf-executor" style="display:none">
+                <div class="fg"><label class="fl">⚡ Nome do Executor</label><input type="text" class="fc" id="e-nam" placeholder="Ex: Synapse X, Fluxus, Delta, Arceus X..."></div>
+                <div class="fg"><label class="fl">📋 Descrição</label><textarea class="fc" id="e-dsc" placeholder="Descreva o executor, funções, suporte..."></textarea></div>
+                <div class="fg">
+                    <label class="fl">🖼️ Logo / Imagem do Executor (URL)</label>
+                    <input type="url" class="fc" id="e-img" placeholder="https://i.imgur.com/..." oninput="prevImg('e-img','e-iprev')">
+                    <div class="ipw"><div id="e-iprev" class="ipph"><span class="bi">⚡</span><span>Logo preview</span></div></div>
+                </div>
+                <div class="fr">
+                    <div class="fg"><label class="fl">🏷️ Versão</label><input type="text" class="fc" id="e-ver" placeholder="v3.0.1"></div>
+                    <div class="fg"><label class="fl">⭐ Avaliação (1-5)</label><input type="number" class="fc" id="e-rat" min="1" max="5" value="5"></div>
+                </div>
+                <div class="fg">
+                    <label class="fl">💻 Plataformas</label>
+                    <div class="pchks">
+                        <label><input type="checkbox" id="e-win"> 🖥️ Windows</label>
+                        <label><input type="checkbox" id="e-and"> 📱 Android</label>
+                        <label><input type="checkbox" id="e-ios"> 🍎 iOS</label>
+                        <label><input type="checkbox" id="e-mac"> 💻 Mac</label>
+                    </div>
+                </div>
+                <div class="fg">
+                    <label class="fl">🔒 Status</label>
+                    <select class="fc" id="e-sta">
+                        <option value="active">✅ Ativo / Funcionando</option>
+                        <option value="detected">❌ Detectado / Banindo</option>
+                    </select>
+                </div>
+                <div class="fg"><label class="fl">💰 Preço</label><select class="fc" id="e-pri"><option value="free">Gratuito</option><option value="paid">Pago</option><option value="freemium">Freemium</option></select></div>
+                <div class="fg"><label class="fl">🔗 Link Download / Site</label><input type="url" class="fc" id="e-lnk" placeholder="https://..."></div>
+                <button class="btn btn-pr" style="width:100%;padding:12px;margin-top:.5rem" onclick="postExecutor()">⚡ Publicar Executor</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lb" id="lb" onclick="closeLB(event)">
+    <div class="lb-c">
+        <button class="lb-x" onclick="document.getElementById('lb').classList.remove('open')">✕ Fechar</button>
+        <img id="lb-img" src="" alt="">
+        <div class="lb-cap" id="lb-cap"></div>
+    </div>
+</div>
+
+<div class="tcon" id="tcon"></div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, deleteDoc, doc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+const cfg = {
+    apiKey:"AIzaSyCJBmHKRpMXDUz5mt6L6Fb2q76XprLojA4",
+    authDomain:"tux-script.firebaseapp.com",
+    projectId:"tux-script",
+    storageBucket:"tux-script.firebasestorage.app",
+    messagingSenderId:"590964299820",
+    appId:"1:590964299820:web:4281e97e4d142813951989",
+    measurementId:"G-XR1T57GF82"
+};
+const app = initializeApp(cfg);
+getAnalytics(app);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ← ADICIONE SEU EMAIL AQUI
+const ADMINS = ['admin@tux-script.com'];
+
+window._fb = { db, collection, addDoc, deleteDoc, doc, serverTimestamp };
+window._admins = ADMINS;
+window._scripts = [];
+window._ifaces = [];
+window._execs = [];
+
+// AUTH
+onAuthStateChanged(auth, u => {
+    window._user = u;
+    updateNav(u);
+});
+
+function updateNav(u) {
+    const act = document.getElementById('nav-act');
+    const anav = document.getElementById('nav-admin');
+    const fab = document.getElementById('fab');
+    if (u) {
+        const init = (u.displayName||u.email).charAt(0).toUpperCase();
+        const isA = ADMINS.includes(u.email);
+        act.innerHTML = `<div class="ubadge"><div class="uav">${init}</div><span>${u.displayName||u.email.split('@')[0]}</span></div>
+        <button class="btn btn-ol" onclick="doLogout()" style="border-color:var(--er);color:var(--er)">Sair</button>`;
+        if (isA) { anav.style.display='block'; fab.classList.add('on'); }
+        else { anav.style.display='none'; fab.classList.remove('on'); }
+    } else {
+        act.innerHTML = `<button class="btn btn-ol" onclick="openAuth('login')">Entrar</button><button class="btn btn-pr" onclick="openAuth('register')">Registrar</button>`;
+        anav.style.display='none'; fab.classList.remove('on');
+    }
+}
+
+window.doLogin = async () => {
+    const em = document.getElementById('l-email').value.trim();
+    const pw = document.getElementById('l-pass').value;
+    if (!em||!pw) { toast('Preencha todos os campos!','er'); return; }
+    try { await signInWithEmailAndPassword(auth,em,pw); closeM('mo-auth'); toast('✅ Login realizado!','ok'); }
+    catch(e) { const m={'auth/invalid-credential':'E-mail ou senha incorretos','auth/user-not-found':'Usuário não encontrado','auth/wrong-password':'Senha incorreta'}; toast(m[e.code]||'Erro ao fazer login','er'); }
+};
+
+window.doRegister = async () => {
+    const nm = document.getElementById('r-name').value.trim();
+    const em = document.getElementById('r-email').value.trim();
+    const pw = document.getElementById('r-pass').value;
+    if (!nm||!em||!pw) { toast('Preencha todos os campos!','er'); return; }
+    if (pw.length<6) { toast('Senha mínimo 6 caracteres','er'); return; }
+    try {
+        const c = await createUserWithEmailAndPassword(auth,em,pw);
+        await updateProfile(c.user,{displayName:nm});
+        closeM('mo-auth'); toast('✅ Conta criada!','ok');
+    } catch(e) { const m={'auth/email-already-in-use':'E-mail já cadastrado','auth/weak-password':'Senha fraca'}; toast(m[e.code]||'Erro ao registrar','er'); }
+};
+
+window.doLogout = async () => { await signOut(auth); toast('👋 Até logo!','inf'); showPage('home'); };
+
+// ──────── SCRIPTS ────────
+const qS = query(collection(db,'scripts'), orderBy('createdAt','desc'));
+onSnapshot(qS, snap => {
+    window._scripts = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderScripts(window._scripts);
+    renderHomeScripts(window._scripts.slice(0,3));
+    document.getElementById('hs-scripts').textContent = window._scripts.length;
+    document.getElementById('as-s').textContent = window._scripts.length;
+    admRender('adm-s', window._scripts, 'scripts');
+});
+
+function renderScripts(list) {
+    const g = document.getElementById('sg');
+    if (!list.length) { g.innerHTML=empty('📜','Nenhum script encontrado',''); return; }
+    g.innerHTML = list.map(scriptCard).join('');
+}
+window.renderScripts = renderScripts;
+
+function renderHomeScripts(list) {
+    const g = document.getElementById('h-scripts');
+    if (!list.length) { g.innerHTML=empty('📜','Nenhum script ainda','Seja o primeiro!'); return; }
+    g.innerHTML = list.map(scriptCard).join('');
+}
+
+function scriptCard(s) {
+    const img = s.imageUrl ? `<img src="${x(s.imageUrl)}" alt="" onerror="this.style.display='none'">` : `<div class="cimg-ph"><span class="bi">📜</span><span>Sem imagem</span></div>`;
+    const bt = s.scriptType==='free'?'free':'paid';
+    const bl = s.scriptType==='free'?'Grátis':'Pago';
+    const cid = 'cv-'+s.id;
+    return `<div class="card">
+        <div class="cimg">${img}<span class="cbadge ${bt}">${bl}</span></div>
+        <div class="cbody">
+            <div class="ctitle">${x(s.title)}</div>
+            <div class="cdesc">${x(s.description||'')}</div>
+            <div class="cmeta"><span>🎮 ${x(s.game||'Universal')}</span><span>👤 ${x(s.author||'Anônimo')}</span></div>
+            <div class="cfoot">
+                <button class="btn btn-ol btn-sm" onclick="toggleCV('${cid}')">👁️ Ver</button>
+                <button class="btn btn-pr btn-sm" onclick="copyS('${x(s.code||'')}',this)">📋 Copiar</button>
+            </div>
+            <div class="cv" id="${cid}">
+                <div class="cv-hd"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><span class="cv-lang">Lua</span></div>
+                <div class="cv-body">${x(s.code||'-- Sem código')}</div>
+            </div>
+        </div>
+    </div>`;
+}
+
+window.postScript = async () => {
+    if (!chkAdmin()) return;
+    const tit = document.getElementById('s-tit').value.trim();
+    const cod = document.getElementById('s-cod').value.trim();
+    if (!tit||!cod) { toast('Título e código obrigatórios!','er'); return; }
+    try {
+        const {db,collection,addDoc,serverTimestamp} = window._fb;
+        await addDoc(collection(db,'scripts'),{
+            title:tit, description:document.getElementById('s-dsc').value.trim(),
+            code:cod, game:document.getElementById('s-gam').value.trim(),
+            scriptType:document.getElementById('s-typ').value,
+            imageUrl:document.getElementById('s-img').value.trim(),
+            author:window._user.displayName||'Admin', authorId:window._user.uid, createdAt:serverTimestamp()
+        });
+        closeM('mo-post'); clearForms(); toast('✅ Script publicado!','ok');
+    } catch(e) { toast('Erro: '+e.message,'er'); }
+};
+
+// ──────── INTERFACES ────────
+const qI = query(collection(db,'interfaces'), orderBy('createdAt','desc'));
+onSnapshot(qI, snap => {
+    window._ifaces = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderIfaces(window._ifaces);
+    renderHomeIfaces(window._ifaces.slice(0,2));
+    document.getElementById('hs-ifaces').textContent = window._ifaces.length;
+    document.getElementById('as-i').textContent = window._ifaces.length;
+    admRender('adm-i', window._ifaces, 'interfaces');
+});
+
+function renderIfaces(list) {
+    const g = document.getElementById('ig');
+    if (!list.length) { g.innerHTML=empty('🖥️','Nenhuma interface encontrada',''); return; }
+    g.innerHTML = list.map(ifaceCard).join('');
+}
+window.renderIfaces = renderIfaces;
+
+function renderHomeIfaces(list) {
+    const g = document.getElementById('h-ifaces');
+    if (!list.length) { g.innerHTML=empty('🖥️','Nenhuma interface ainda','Em breve!'); return; }
+    g.innerHTML = list.map(ifaceCard).join('');
+}
+
+function ifaceCard(e) {
+    const allImgs = [e.mainImageUrl, ...(e.screenshots||[])].filter(Boolean);
+    const mainImg = allImgs[0]
+        ? `<img src="${x(allImgs[0])}" alt="Interface ${x(e.name)}" id="mi-${x(e.id)}" onerror="this.parentElement.innerHTML='<div class=icard-ss-ph><span class=bi>🖥️</span><span>Indisponível</span></div>'">`
+        : `<div class="icard-ss-ph"><span class="bi">🖥️</span><span>Sem screenshot</span></div>`;
+
+    const thumbs = allImgs.length > 1 ? `<div class="thumb-strip">${allImgs.map((img,i)=>`
+        <div class="thumb ${i===0?'on':''}" onclick="swImg(this,'${x(img)}','mi-${x(e.id)}')">
+            <img src="${x(img)}" onerror="this.parentElement.innerHTML='<div class=thumb-ph>📷</div>'">
+        </div>`).join('')}</div>` : '';
+
+    const logo = e.logoUrl ? `<img src="${x(e.logoUrl)}" alt="">` : `<span>⚡</span>`;
+    const stars = '⭐'.repeat(Math.min(parseInt(e.rating)||5,5));
+    const plats = (e.platforms||[]).map(p=>({ windows:'🖥️ Win',android:'📱 Android',ios:'🍎 iOS',mac:'💻 Mac' }[p]||p)).map(p=>`<span class="ptag">${p}</span>`).join('');
+    const feats = (e.features||[]).map(f=>`<span class="feat-tag">${x(f)}</span>`).join('');
+    const bc = e.priceType==='free'?'free':e.priceType==='freemium'?'freemium':'paid';
+    const bl = e.priceType==='free'?'Gratuito':e.priceType==='freemium'?'Freemium':'Pago';
+
+    return `<div class="icard">
+        <div class="icard-main-ss" onclick="openLB('${x(allImgs[0]||'')}','Interface: ${x(e.name)}')">
+            ${mainImg}
+            <div class="icard-expand"><button class="icard-expand-btn" onclick="event.stopPropagation();openLB('${x(allImgs[0]||'')}','${x(e.name)}')">🔍 Tela Cheia</button></div>
+        </div>
+        ${thumbs}
+        <div class="icard-info">
+            <div class="icard-hd">
+                <div class="icard-logo">${logo}</div>
+                <div class="icard-nw">
+                    <div class="icard-name">${x(e.name)}</div>
+                    <div class="icard-sub">${e.version?'v'+x(e.version)+' · ':''}por ${x(e.author||'Admin')}</div>
+                </div>
+                <span class="ibadge ${bc}">${bl}</span>
+            </div>
+            <div class="icard-desc">${x(e.description||'')}</div>
+            ${feats?`<div class="feat-tags">${feats}</div>`:''}
+            <div class="icard-stats">
+                <div class="ist"><div class="ist-v">${'⭐'.repeat(Math.min(parseInt(e.rating)||5,5))}</div><div class="ist-l">Avaliação</div></div>
+                <div class="ist"><div class="ist-v">${allImgs.length}</div><div class="ist-l">Screenshots</div></div>
+                <div class="ist"><div class="ist-v">${(e.platforms||[]).length||'—'}</div><div class="ist-l">Plataformas</div></div>
+            </div>
+            ${plats?`<div class="plats">${plats}</div>`:''}
+            <div class="icard-act">
+                ${e.downloadLink?`<a href="${x(e.downloadLink)}" target="_blank" class="btn btn-pr btn-sm" style="text-decoration:none;text-align:center;flex:1">⬇️ Download / Site</a>`:`<button class="btn btn-ol btn-sm" style="flex:1" disabled>Sem link</button>`}
+                ${allImgs[0]?`<button class="btn btn-ol btn-sm" onclick="openLB('${x(allImgs[0])}','${x(e.name)}')">🖼️</button>`:''}
+            </div>
+        </div>
+    </div>`;
+}
+
+window.postInterface = async () => {
+    if (!chkAdmin()) return;
+    const nam = document.getElementById('i-nam').value.trim();
+    if (!nam) { toast('Nome obrigatório!','er'); return; }
+    const platforms=[], ss=[];
+    ['win','and','ios','mac'].forEach(p=>{ if(document.getElementById('i-'+p).checked) platforms.push(p==='win'?'windows':p==='and'?'android':p); });
+    document.querySelectorAll('#i-ssl .ssi input').forEach(inp=>{ if(inp.value.trim()) ss.push(inp.value.trim()); });
+    const featStr = document.getElementById('i-fea').value.trim();
+    const features = featStr ? featStr.split(',').map(f=>f.trim()).filter(Boolean) : [];
+    try {
+        const {db,collection,addDoc,serverTimestamp} = window._fb;
+        await addDoc(collection(db,'interfaces'),{
+            name:nam, description:document.getElementById('i-dsc').value.trim(),
+            logoUrl:document.getElementById('i-logo').value.trim(),
+            mainImageUrl:document.getElementById('i-main').value.trim(),
+            screenshots:ss, version:document.getElementById('i-ver').value.trim(),
+            rating:parseInt(document.getElementById('i-rat').value)||5,
+            platforms, features, priceType:document.getElementById('i-pri').value,
+            downloadLink:document.getElementById('i-lnk').value.trim(),
+            author:window._user.displayName||'Admin', authorId:window._user.uid, createdAt:serverTimestamp()
+        });
+        closeM('mo-post'); clearForms(); toast('✅ Interface publicada!','ok');
+    } catch(e) { toast('Erro: '+e.message,'er'); }
+};
+
+// ──────── EXECUTORES ────────
+const qE = query(collection(db,'executors'), orderBy('createdAt','desc'));
+onSnapshot(qE, snap => {
+    window._execs = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderExecs(window._execs);
+    renderHomeExecs(window._execs.slice(0,4));
+    document.getElementById('hs-execs').textContent = window._execs.length;
+    document.getElementById('as-e').textContent = window._execs.length;
+    admRender('adm-e', window._execs, 'executors');
+});
+
+function renderExecs(list) {
+    const g = document.getElementById('eg');
+    if (!list.length) { g.innerHTML=empty('⚡','Nenhum executor encontrado',''); return; }
+    g.innerHTML = list.map(execCard).join('');
+}
+window.renderExecs = renderExecs;
+
+function renderHomeExecs(list) {
+    const g = document.getElementById('h-execs');
+    if (!list.length) { g.innerHTML=empty('⚡','Nenhum executor ainda','Em breve!'); return; }
+    g.innerHTML = list.map(execCard).join('');
+}
+
+function execCard(e) {
+    const img = e.imageUrl
+        ? `<img src="${x(e.imageUrl)}" alt="${x(e.name)}" onerror="this.parentElement.innerHTML='<div class=ecard-logo-ph><span class=bi>⚡</span><span>Sem logo</span></div>'">`
+        : `<div class="ecard-logo-ph"><span class="bi">⚡</span><span>Sem logo</span></div>`;
+    const stars = '⭐'.repeat(Math.min(parseInt(e.rating)||5,5));
+    const plats = (e.platforms||[]).map(p=>({windows:'🖥️',android:'📱',ios:'🍎',mac:'💻'}[p]||p)).map(p=>`<span class="ptag">${p}</span>`).join('');
+    const bc = e.priceType==='free'?'free':e.priceType==='freemium'?'freemium':'paid';
+    const bl = e.priceType==='free'?'Grátis':e.priceType==='freemium'?'Freemium':'Pago';
+    const stCls = e.status==='detected'?'st-detected':'st-active';
+    const stLb = e.status==='detected'?'❌ Detectado':'✅ Ativo';
+
+    return `<div class="ecard">
+        <div class="ecard-logo-wrap">${img}${e.version?`<span class="ecard-ver">v${x(e.version)}</span>`:''}</div>
+        <div class="ecard-body">
+            <div class="ecard-title">${x(e.name)}<span class="ecard-status ${stCls}">${stLb}</span></div>
+            <div class="ecard-desc">${x(e.description||'')}</div>
+            <div class="ecard-stars">${stars}</div>
+            <div class="ecard-plats">${plats}<span class="ptag ibadge ${bc}" style="font-size:.68rem">${bl}</span></div>
+            <div class="ecard-foot">
+                ${e.downloadLink?`<a href="${x(e.downloadLink)}" target="_blank" class="btn btn-pr btn-sm" style="text-decoration:none;text-align:center;flex:1">⬇️ Download</a>`:`<button class="btn btn-ol btn-sm" style="flex:1" disabled>Sem link</button>`}
+            </div>
+        </div>
+    </div>`;
+}
+
+window.postExecutor = async () => {
+    if (!chkAdmin()) return;
+    const nam = document.getElementById('e-nam').value.trim();
+    if (!nam) { toast('Nome obrigatório!','er'); return; }
+    const platforms=[];
+    ['win','and','ios','mac'].forEach(p=>{ if(document.getElementById('e-'+p).checked) platforms.push(p==='win'?'windows':p==='and'?'android':p); });
+    try {
+        const {db,collection,addDoc,serverTimestamp} = window._fb;
+        await addDoc(collection(db,'executors'),{
+            name:nam, description:document.getElementById('e-dsc').value.trim(),
+            imageUrl:document.getElementById('e-img').value.trim(),
+            version:document.getElementById('e-ver').value.trim(),
+            rating:parseInt(document.getElementById('e-rat').value)||5,
+            platforms, status:document.getElementById('e-sta').value,
+            priceType:document.getElementById('e-pri').value,
+            downloadLink:document.getElementById('e-lnk').value.trim(),
+            author:window._user.displayName||'Admin', authorId:window._user.uid, createdAt:serverTimestamp()
+        });
+        closeM('mo-post'); clearForms(); toast('✅ Executor publicado!','ok');
+    } catch(e) { toast('Erro: '+e.message,'er'); }
+};
+
+// DELETE
+window.delItem = async (col, id) => {
+    if (!confirm('Deletar?')) return;
+    try {
+        const {db,doc,deleteDoc} = window._fb;
+        await deleteDoc(doc(db,col,id));
+        toast('🗑️ Deletado!','ok');
+    } catch(e) { toast('Erro!','er'); }
+};
+
+// ADMIN LIST
+function admRender(elId, list, col) {
+    const el = document.getElementById(elId);
+    if (!list.length) { el.innerHTML=empty('📦','Vazio',''); return; }
+    const nameKey = col==='scripts'?'title':'name';
+    el.innerHTML = list.map(item=>`
+        <div class="card" style="padding:1rem">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+                <div>
+                    <div style="font-weight:700;font-size:.9rem">${x(item[nameKey]||'-')}</div>
+                    <div style="font-size:.75rem;color:var(--tx2)">${col==='scripts'?'🎮 '+x(item.game||'-'):'⭐ '+(item.rating||5)}</div>
+                </div>
+                <button class="delbtn" onclick="delItem('${col}','${item.id}')">🗑️</button>
+            </div>
+        </div>`).join('');
+}
+
+// FILTERS
+window.filterS = () => {
+    const q = document.getElementById('ss-q').value.toLowerCase();
+    const f = document.getElementById('ss-f').value;
+    renderScripts((window._scripts||[]).filter(s =>
+        (s.title.toLowerCase().includes(q)||(s.game||'').toLowerCase().includes(q)||(s.description||'').toLowerCase().includes(q)) &&
+        (f==='all'||s.scriptType===f)
+    ));
+};
+window.filterI = () => {
+    const q = document.getElementById('is-q').value.toLowerCase();
+    const f = document.getElementById('is-f').value;
+    renderIfaces((window._ifaces||[]).filter(i =>
+        (i.name.toLowerCase().includes(q)||(i.description||'').toLowerCase().includes(q)) &&
+        (f==='all'||(i.platforms||[]).includes(f))
+    ));
+};
+window.filterE = () => {
+    const q = document.getElementById('es-q').value.toLowerCase();
+    const f = document.getElementById('es-f').value;
+    renderExecs((window._execs||[]).filter(e =>
+        (e.name.toLowerCase().includes(q)||(e.description||'').toLowerCase().includes(q)) &&
+        (f==='all'||(e.platforms||[]).includes(f))
+    ));
+};
+
+// UTILS
+function x(s) { if(!s)return''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
+function empty(ic,t,s) { return `<div class="empty"><span class="bi">${ic}</span><h3>${t}</h3><p>${s}</p></div>`; }
+function chkAdmin() {
+    if (!window._user) { toast('Faça login!','er'); return false; }
+    if (!window._admins.includes(window._user.email)) { toast('Apenas admins!','er'); return false; }
+    return true;
+}
+function clearForms() {
+    ['s-tit','s-dsc','s-cod','s-gam','s-img','i-nam','i-dsc','i-logo','i-main','i-ver','i-fea','i-lnk','e-nam','e-dsc','e-img','e-ver','e-lnk'].forEach(id=>{
+        const el=document.getElementById(id); if(el) el.value='';
+    });
+    document.getElementById('i-rat').value=5;
+    document.getElementById('e-rat').value=5;
+    ['i-win','i-and','i-ios','i-mac','e-win','e-and','e-ios','e-mac'].forEach(id=>{
+        const el=document.getElementById(id); if(el) el.checked=false;
+    });
+    document.getElementById('i-ssl').innerHTML='<div class="ssi"><input type="url" class="fc" placeholder="URL screenshot 1"><button class="rmss" onclick="rmSS(this)">✕</button></div>';
+    ['s-iprev','i-lprev','i-mprev','e-iprev'].forEach(id=>resetPrev(id));
+}
+function resetPrev(id) { const el=document.getElementById(id); if(el) el.innerHTML='<span class="bi">🖼️</span><span>Preview</span>'; }
+</script>
+
+<script>
+// PARTICLES
+(function(){
+    const c=document.getElementById('particles');
+    for(let i=0;i<25;i++){
+        const p=document.createElement('div'); p.className='particle';
+        p.style.left=Math.random()*100+'vw';
+        p.style.animationDuration=(Math.random()*15+10)+'s';
+        p.style.animationDelay=(Math.random()*15)+'s';
+        const s=(Math.random()*3+1)+'px'; p.style.width=p.style.height=s;
+        c.appendChild(p);
+    }
+})();
+
+function showPage(n) {
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav-links a').forEach(a=>a.classList.remove('active'));
+    const pg=document.getElementById('page-'+n);
+    const nv=document.getElementById('nav-'+n);
+    if(pg) pg.classList.add('active');
+    if(nv) nv.classList.add('active');
+    window.scrollTo(0,0);
+}
+
+function openM(id){ document.getElementById(id).classList.add('open'); }
+function closeM(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.mo').forEach(o=>o.addEventListener('click',function(e){ if(e.target===this) this.classList.remove('open'); }));
+
+function openAuth(tab){ openM('mo-auth'); switchA(tab); }
+function switchA(tab){
+    document.querySelectorAll('.atab').forEach(t=>t.classList.remove('on'));
+    document.querySelectorAll('.aform').forEach(f=>f.classList.remove('on'));
+    document.getElementById('at-'+tab).classList.add('on');
+    document.getElementById('af-'+tab).classList.add('on');
+}
+
+function openPost(type) {
+    if (!window._user) { toast('Faça login!','er'); openAuth('login'); return; }
+    if (!(window._admins||[]).includes(window._user.email)) { toast('Apenas admins!','er'); return; }
+    openM('mo-post');
+    if(type) switchP(type);
+}
+
+function switchP(type) {
+    document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('on'));
+    ['script','interface','executor'].forEach(t=>{ document.getElementById('pf-'+t).style.display='none'; });
+    document.getElementById('pt-'+type).classList.add('on');
+    document.getElementById('pf-'+type).style.display='block';
+    const titles={script:'📜 Novo Script',interface:'🖥️ Nova Interface',executor:'⚡ Novo Executor'};
+    document.getElementById('post-title').textContent = titles[type]||'+ Novo Post';
+}
+
+function toggleCV(id){ document.getElementById(id).classList.toggle('open'); }
+
+function copyS(code,btn) {
+    if(!code){ toast('Sem código!','er'); return; }
+    navigator.clipboard.writeText(code).then(()=>{
+        const o=btn.textContent; btn.textContent='✅ Copiado!'; btn.style.background='var(--ok)';
+        setTimeout(()=>{ btn.textContent=o; btn.style.background=''; },2000);
+    }).catch(()=>toast('Erro ao copiar!','er'));
+}
+
+function prevImg(inputId, prevId) {
+    const url = document.getElementById(inputId).value.trim();
+    const el = document.getElementById(prevId);
+    if(url) {
+        el.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div class=ipph><span class=bi>❌</span><span>URL inválida</span></div>'">`;
+    } else {
+        el.innerHTML='<span class="bi">🖼️</span><span>Preview</span>';
+    }
+}
+
+function swImg(thumb, imgUrl, targetId) {
+    document.querySelectorAll('.thumb').forEach(t=>t.classList.remove('on'));
+    thumb.classList.add('on');
+    const target = document.getElementById(targetId);
+    if(!target) return;
+    if(target.tagName==='IMG') { target.src=imgUrl; }
+    else {
+        const parent = target.parentElement;
+        parent.innerHTML=`<img src="${imgUrl}" style="width:100%;height:100%;object-fit:cover;display:block" id="${targetId}">
+        <div class="icard-expand"><button class="icard-expand-btn" onclick="openLB('${imgUrl}','Interface')">🔍 Tela Cheia</button></div>`;
+    }
+}
+
+function openLB(url, cap) {
+    if(!url) return;
+    document.getElementById('lb-img').src=url;
+    document.getElementById('lb-cap').textContent=cap||'';
+    document.getElementById('lb').classList.add('open');
+}
+function closeLB(e) { if(e.target===document.getElementById('lb')) document.getElementById('lb').classList.remove('open'); }
+
+function addSS(listId) {
+    const list = document.getElementById(listId);
+    const n = list.children.length+1;
+    const div=document.createElement('div'); div.className='ssi';
+    div.innerHTML=`<input type="url" class="fc" placeholder="URL screenshot ${n}"><button class="rmss" onclick="rmSS(this)">✕</button>`;
+    list.appendChild(div);
+}
+function rmSS(btn) {
+    const item=btn.closest('.ssi'), list=item.parentElement;
+    if(list.children.length>1) item.remove();
+    else item.querySelector('input').value='';
+}
+
+function toast(msg, type='inf') {
+    const c=document.getElementById('tcon');
+    const icons={ok:'✅',er:'❌',inf:'ℹ️'};
+    const t=document.createElement('div');
+    t.className=`toast ${type}`;
+    t.innerHTML=`<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+    c.appendChild(t);
+    setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(100px)'; t.style.transition='all .3s'; setTimeout(()=>t.remove(),300); },3000);
+}
+
+document.addEventListener('keydown', e=>{
+    if(e.key==='Escape'){
+        document.querySelectorAll('.mo.open').forEach(m=>m.classList.remove('open'));
+        document.getElementById('lb').classList.remove('open');
+    }
+});
+</script>
+</body>
+</html>
